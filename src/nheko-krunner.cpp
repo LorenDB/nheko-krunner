@@ -12,6 +12,9 @@
 #include <QDBusInterface>
 #include <QDBusReply>
 
+#define OPEN_ROOM QStringLiteral("nheko-krunner.action.open_room")
+#define JOIN_ROOM QStringLiteral("nheko-krunner.action.join_room")
+
 NhekoKRunner::NhekoKRunner(QObject *parent, const QVariantList &args)
     : Plasma::AbstractRunner(parent, args)
 {
@@ -79,9 +82,9 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
             Plasma::QueryMatch match{this};
             match.setSubtext(room.roomName());
             match.setText(room.alias());
-            match.setData(room.roomId());
+            match.setData(QStringList{} << OPEN_ROOM << room.roomId());
             match.setIcon(room.icon());
-            match.setType(matchingContent.compare(input, Qt::CaseInsensitive) == 0 ? Plasma::QueryMatch::ExactMatch : Plasma::QueryMatch::PossibleMatch); // TODO: be truthful about this
+            match.setType(matchingContent.compare(input, Qt::CaseInsensitive) == 0 ? Plasma::QueryMatch::ExactMatch : Plasma::QueryMatch::PossibleMatch);
             context.addMatch(match);
 
             if (room.roomId() == input)
@@ -93,24 +96,34 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
     }
 
     if (!roomFound)
-        if (QRegExp r{QStringLiteral("#.+?:.{3,}"), Qt::CaseInsensitive}; r.exactMatch(input))
+    {
+        QRegularExpression r{QStringLiteral("#.+?:.{3,}"), QRegularExpression::CaseInsensitiveOption};
+        if (auto regexMatch = r.match(input); regexMatch.hasMatch())
         {
-            Plasma::QueryMatch match;
+            Plasma::QueryMatch match{this};
             match.setSubtext(tr("Join %1").arg(input));
             match.setText(input);
-            match.setData(input);
+            match.setData(QStringList{} << JOIN_ROOM << input);
             match.setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
             match.setType(Plasma::QueryMatch::ExactMatch);
             context.addMatch(match);
         }
+    }
 }
 
 void NhekoKRunner::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match)
 {
     Q_UNUSED(context);
 
-    if (QDBusInterface interface{QStringLiteral("io.github.Nheko-Reborn.nheko"), QStringLiteral("/")}; interface.isValid())
-        interface.call(QStringLiteral("activateRoom"), match.data());
+    if (QDBusInterface interface{QStringLiteral(NHEKO_DBUS_SERVICE_NAME), QStringLiteral("/")}; interface.isValid())
+    {
+        QStringList args = match.data().toStringList();
+
+        if (args[0] == OPEN_ROOM)
+            interface.call(QStringLiteral("activateRoom"), args[1]);
+        else if (args[0] == JOIN_ROOM)
+            ;
+    }
 }
 
 K_EXPORT_PLASMA_RUNNER_WITH_JSON(NhekoKRunner, "plasma-runner-nheko-krunner.json")
