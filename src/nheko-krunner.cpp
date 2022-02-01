@@ -82,7 +82,7 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
             Plasma::QueryMatch match{this};
             match.setSubtext(room.roomName());
             match.setText(room.alias());
-            match.setData(QStringList{} << OPEN_ROOM << room.roomId());
+            match.setData(QVariant::fromValue(NhekoAction{.roomid{room.roomId()}, .actionType{ActionType::OpenRoom}}));
             match.setIcon(room.icon());
             match.setType(matchingContent.compare(input, Qt::CaseInsensitive) == 0 ? Plasma::QueryMatch::ExactMatch : Plasma::QueryMatch::PossibleMatch);
             context.addMatch(match);
@@ -103,7 +103,7 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
             Plasma::QueryMatch match{this};
             match.setSubtext(tr("Join %1").arg(input));
             match.setText(input);
-            match.setData(QStringList{} << JOIN_ROOM << input);
+            match.setData(QVariant::fromValue(NhekoAction{.roomid{input}, .actionType{ActionType::JoinRoom}}));
             match.setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
             match.setType(Plasma::QueryMatch::ExactMatch);
             context.addMatch(match);
@@ -117,12 +117,20 @@ void NhekoKRunner::run(const Plasma::RunnerContext &context, const Plasma::Query
 
     if (QDBusInterface interface{QStringLiteral(NHEKO_DBUS_SERVICE_NAME), QStringLiteral("/")}; interface.isValid())
     {
-        QStringList args = match.data().toStringList();
+        auto data = match.data().value<NhekoAction>();
 
-        if (args[0] == OPEN_ROOM)
-            interface.call(QStringLiteral("activateRoom"), args[1]);
-        else if (args[0] == JOIN_ROOM)
-            ;
+        switch (data.actionType)
+        {
+        case ActionType::OpenRoom:
+            interface.call(QDBus::NoBlock, QStringLiteral("activateRoom"), data.roomid);
+            break;
+        case ActionType::JoinRoom:
+            interface.call(QDBus::NoBlock, QStringLiteral("joinRoom"), data.roomid);
+            break;
+        default:
+            break;
+        }
+
     }
 }
 

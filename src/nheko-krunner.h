@@ -11,6 +11,19 @@
 
 #include "NhekoDBusInterface.h"
 
+enum ActionType
+{
+    OpenRoom,
+    JoinRoom,
+};
+
+struct NhekoAction
+{
+    QString roomid;
+    ActionType actionType;
+};
+Q_DECLARE_METATYPE(NhekoAction)
+
 class NhekoKRunner : public Plasma::AbstractRunner
 {
     Q_OBJECT
