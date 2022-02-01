@@ -15,8 +15,8 @@
 #define OPEN_ROOM QStringLiteral("nheko-krunner.action.open_room")
 #define JOIN_ROOM QStringLiteral("nheko-krunner.action.join_room")
 
-NhekoKRunner::NhekoKRunner(QObject *parent, const QVariantList &args)
-    : Plasma::AbstractRunner(parent, args)
+NhekoKRunner::NhekoKRunner(QObject *parent, const KPluginMetaData &metadata, const QVariantList &args)
+    : Plasma::AbstractRunner(parent, metadata, args)
 {
     setObjectName(QStringLiteral("nheko"));
     setMinLetterCount(3);

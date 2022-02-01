@@ -16,7 +16,7 @@ class NhekoKRunner : public Plasma::AbstractRunner
     Q_OBJECT
 
 public:
-    NhekoKRunner(QObject *parent, const QVariantList &args);
+    NhekoKRunner(QObject *parent, const KPluginMetaData &metadata, const QVariantList &args);
     ~NhekoKRunner() override;
 
 public: // Plasma::AbstractRunner API
