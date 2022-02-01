@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2010 David Sansome <me@davidsansome.com>
+// SPDX-FileCopyrightText: 2022 Nheko Contributors
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 #include "NhekoDBusInterface.h"
 
 #include <QDBusMetaType>
@@ -10,13 +15,13 @@ operator<<(QDBusArgument &arg, const QImage &image);
 RoomInfoItem::RoomInfoItem(const QString &mxid,
                            const QString &alias,
                            const QString &title,
-                           const QIcon &icon,
+                           const QImage &image,
                            QObject *parent)
   : QObject{parent}
   , roomId_{mxid}
   , alias_{alias}
   , roomName_{title}
-  , icon_{icon}
+  , image_{image}
 {}
 
 RoomInfoItem::RoomInfoItem(const RoomInfoItem &other)
@@ -24,7 +29,7 @@ RoomInfoItem::RoomInfoItem(const RoomInfoItem &other)
   , roomId_{other.roomId_}
   , alias_{other.alias_}
   , roomName_{other.roomName_}
-  , icon_{other.icon_}
+  , image_{other.image_}
 {}
 
 void
@@ -38,10 +43,10 @@ RoomInfoItem::init()
 RoomInfoItem &
 RoomInfoItem::operator=(const RoomInfoItem &other)
 {
-    roomId_  = other.roomId_;
-    alias_ = other.alias_;
+    roomId_   = other.roomId_;
+    alias_    = other.alias_;
     roomName_ = other.roomName_;
-    icon_  = other.icon_;
+    image_    = other.image_;
     return *this;
 }
 
@@ -49,7 +54,7 @@ QDBusArgument &
 operator<<(QDBusArgument &arg, const RoomInfoItem &item)
 {
     arg.beginStructure();
-    arg << item.roomId_ << item.alias_ << item.roomName_ << item.icon_.pixmap(32, 32).toImage();
+    arg << item.roomId_ << item.alias_ << item.roomName_ << item.image_;
     arg.endStructure();
     return arg;
 }
@@ -58,36 +63,11 @@ const QDBusArgument &
 operator>>(const QDBusArgument &arg, RoomInfoItem &item)
 {
     arg.beginStructure();
-    arg >> item.roomId_ >> item.alias_ >> item.roomName_;
-
-    QImage i;
-    arg >> i;
-    item.icon_ = i.isNull() ? QIcon::fromTheme(QStringLiteral("group")) : QIcon{QPixmap::fromImage(i)};
+    arg >> item.roomId_ >> item.alias_ >> item.roomName_ >> item.image_;
+    if (item.image_.isNull())
+        item.image_ = QIcon::fromTheme(QStringLiteral("group")).pixmap(32, 32).toImage();
 
     arg.endStructure();
-    return arg;
-}
-
-QDBusArgument &
-operator<<(QDBusArgument &arg, const QIcon &icon)
-{
-    arg.beginStructure();
-    QImage pixmap = icon.pixmap(32, 32).toImage();
-    arg << pixmap.size().width() << pixmap.size().height() << pixmap.bits();
-    arg.endStructure();
-
-    return arg;
-}
-
-const QDBusArgument &
-operator>>(const QDBusArgument &arg, QIcon &icon)
-{
-    arg.beginStructure();
-    QVariant v;
-    arg >> v;
-    icon = QIcon{qvariant_cast<QDBusVariant>(v).variant().value<QPixmap>()};
-    arg.endStructure();
-
     return arg;
 }
 
@@ -115,7 +95,7 @@ operator<<(QDBusArgument &arg, const QImage &image)
         scaled = image.scaledToHeight(100, Qt::SmoothTransformation);
     else
         scaled = image;
-    scaled        = scaled.convertToFormat(QImage::Format_ARGB32);
+    scaled = scaled.convertToFormat(QImage::Format_ARGB32);
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
     // ABGR -> ARGB
@@ -150,7 +130,8 @@ operator<<(QDBusArgument &arg, const QImage &image)
 }
 
 // This function, however, was merely reverse-engineered from the above function
-// and is not from the Clementine project.
+// and is not from the Clementine project (except for the byte-order block, which
+// was more or less copied from the above function.
 const QDBusArgument &
 operator>>(const QDBusArgument &arg, QImage &image)
 {
