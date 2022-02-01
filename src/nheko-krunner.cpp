@@ -25,24 +25,18 @@ NhekoKRunner::NhekoKRunner(QObject *parent, const KPluginMetaData &metadata, con
     RoomInfoItem::init();
 
     connect(this, &Plasma::AbstractRunner::prepare, this, [this] {
-        if (!QDBusConnection::sessionBus().isConnected())
-        {
-            m_dbusConnected = false;
-            return;
-        }
+        if (QDBusConnection::sessionBus().isConnected())
+            if (QDBusInterface interface{QStringLiteral(NHEKO_DBUS_SERVICE_NAME), QStringLiteral("/")}; interface.isValid())
+                if (QDBusReply<QString> apiVersion = interface.call(QStringLiteral("apiVersion"));
+                        apiVersion.isValid() && apiVersion.value() == RoomInfoItem::apiVersion)
+                    if (QDBusReply<QVector<RoomInfoItem>> reply = interface.call(QStringLiteral("getRooms")); reply.isValid())
+                    {
+                        m_rooms = reply.value();
+                        m_dbusConnected = true;
+                        return;
+                    }
 
-        if (QDBusInterface interface{QStringLiteral(NHEKO_DBUS_SERVICE_NAME), QStringLiteral("/")}; interface.isValid())
-        {
-            if (QDBusReply<QVector<RoomInfoItem>> reply = interface.call(QStringLiteral("getRooms")); reply.isValid())
-            {
-                m_rooms = reply.value();
-                m_dbusConnected = true;
-            }
-            else
-                m_dbusConnected = false;
-        }
-        else
-            m_dbusConnected = false;
+        m_dbusConnected = false;
     });
 }
 
