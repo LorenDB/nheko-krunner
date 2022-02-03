@@ -22,14 +22,14 @@ NhekoKRunner::NhekoKRunner(QObject *parent, const KPluginMetaData &metadata, con
     setMinLetterCount(3);
     setPriority(Plasma::AbstractRunner::HighestPriority);
 
-    RoomInfoItem::init();
+    nheko::dbus::init();
 
     connect(this, &Plasma::AbstractRunner::prepare, this, [this] {
         if (QDBusConnection::sessionBus().isConnected())
             if (QDBusInterface interface{QStringLiteral(NHEKO_DBUS_SERVICE_NAME), QStringLiteral("/")}; interface.isValid())
                 if (QDBusReply<QString> apiVersion = interface.call(QStringLiteral("apiVersion"));
-                        apiVersion.isValid() && apiVersion.value() == RoomInfoItem::apiVersion)
-                    if (QDBusReply<QVector<RoomInfoItem>> reply = interface.call(QStringLiteral("getRooms")); reply.isValid())
+                        apiVersion.isValid() && apiVersion.value() == nheko::dbus::apiVersion)
+                    if (QDBusReply<QVector<nheko::dbus::RoomInfoItem>> reply = interface.call(QStringLiteral("getRooms")); reply.isValid())
                     {
                         m_rooms = reply.value();
                         m_dbusConnected = true;

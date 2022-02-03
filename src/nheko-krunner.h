@@ -37,7 +37,7 @@ public: // Plasma::AbstractRunner API
     void run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match) override;
 
 private:
-    QVector<RoomInfoItem> m_rooms;
+    QVector<nheko::dbus::RoomInfoItem> m_rooms;
     bool m_dbusConnected{true};
 };
 

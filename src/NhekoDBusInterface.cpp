@@ -7,10 +7,14 @@
 
 #include <QDBusMetaType>
 
-const QDBusArgument &
-operator>>(const QDBusArgument &arg, QImage &image);
-QDBusArgument &
-operator<<(QDBusArgument &arg, const QImage &image);
+namespace nheko::dbus {
+void
+init()
+{
+    qDBusRegisterMetaType<RoomInfoItem>();
+    qDBusRegisterMetaType<QVector<RoomInfoItem>>();
+    qDBusRegisterMetaType<QImage>();
+}
 
 RoomInfoItem::RoomInfoItem(const QString &mxid,
                            const QString &alias,
@@ -31,14 +35,6 @@ RoomInfoItem::RoomInfoItem(const RoomInfoItem &other)
   , roomName_{other.roomName_}
   , image_{other.image_}
 {}
-
-void
-RoomInfoItem::init()
-{
-    qDBusRegisterMetaType<RoomInfoItem>();
-    qDBusRegisterMetaType<QVector<RoomInfoItem>>();
-    qDBusRegisterMetaType<QImage>();
-}
 
 RoomInfoItem &
 RoomInfoItem::operator=(const RoomInfoItem &other)
@@ -70,6 +66,7 @@ operator>>(const QDBusArgument &arg, RoomInfoItem &item)
     arg.endStructure();
     return arg;
 }
+} // nheko::dbus
 
 /**
  * Automatic marshaling of a QImage for org.freedesktop.Notifications.Notify
@@ -90,30 +87,10 @@ operator<<(QDBusArgument &arg, const QImage &image)
         return arg;
     }
 
-    QImage scaled;
-    if (image.height() > 100)
-        scaled = image.scaledToHeight(100, Qt::SmoothTransformation);
-    else
-        scaled = image;
-    scaled = scaled.convertToFormat(QImage::Format_ARGB32);
-
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-    // ABGR -> ARGB
-    QImage i = scaled.rgbSwapped();
-#else
-    // ABGR -> GBAR
-    QImage i(scaled.size(), scaled.format());
-    for (int y = 0; y < i.height(); ++y) {
-        QRgb *p   = (QRgb *)scaled.scanLine(y);
-        QRgb *q   = (QRgb *)i.scanLine(y);
-        QRgb *end = p + scaled.width();
-        while (p < end) {
-            *q = qRgba(qGreen(*p), qBlue(*p), qAlpha(*p), qRed(*p));
-            p++;
-            q++;
-        }
-    }
-#endif
+    QImage i = image.height() > 100 || image.width() > 100
+                 ? image.scaledToHeight(100, Qt::SmoothTransformation)
+                 : image;
+    i        = std::move(i).convertToFormat(QImage::Format_RGBA8888);
 
     arg.beginStructure();
     arg << i.width();
@@ -143,6 +120,8 @@ operator>>(const QDBusArgument &arg, QImage &image)
     arg >> width >> height >> garbage >> garbage >> garbage >> garbage >> bits;
     arg.endStructure();
 
+    // this first constructor should work, but it doesn't for some reason; thus the #if-#else-#endif
+//    image = QImage(reinterpret_cast<uchar *>(bits.data()), width, height, QImage::Format_RGBA8888);
     image = QImage(reinterpret_cast<uchar *>(bits.data()), width, height, QImage::Format_ARGB32);
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
     image = image.rgbSwapped();
