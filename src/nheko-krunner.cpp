@@ -73,7 +73,7 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
             Plasma::QueryMatch match{this};
             match.setSubtext(room.roomName());
             match.setText(room.alias());
-            match.setData(QVariant::fromValue(NhekoAction{.roomid{room.roomId()}, .actionType{ActionType::OpenRoom}}));
+            match.setData(QVariant::fromValue(NhekoAction{.id{room.roomId()}, .actionType{ActionType::OpenRoom}}));
             match.setIcon(QIcon{QPixmap::fromImage(room.image())});
             match.setType(matchingContent.compare(input, Qt::CaseInsensitive) == 0 ? Plasma::QueryMatch::ExactMatch : Plasma::QueryMatch::PossibleMatch);
             context.addMatch(match);
@@ -88,14 +88,26 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
 
     if (!roomFound)
     {
-        QRegularExpression r{QStringLiteral("#.+?:.{3,}"), QRegularExpression::CaseInsensitiveOption};
-        if (auto regexMatch = r.match(input); regexMatch.hasMatch())
+        QRegularExpression roomRegex{QStringLiteral("#.+?:.{3,}"), QRegularExpression::CaseInsensitiveOption};
+        if (auto regexMatch = roomRegex.match(input); regexMatch.hasMatch())
         {
             Plasma::QueryMatch match{this};
             match.setSubtext(tr("Join %1").arg(input));
             match.setText(input);
-            match.setData(QVariant::fromValue(NhekoAction{.roomid{input}, .actionType{ActionType::JoinRoom}}));
+            match.setData(QVariant::fromValue(NhekoAction{.id{input}, .actionType{ActionType::JoinRoom}}));
             match.setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
+            match.setType(Plasma::QueryMatch::ExactMatch);
+            context.addMatch(match);
+        }
+        
+        QRegularExpression userRegex{QStringLiteral("@.+?:.{3,}"), QRegularExpression::CaseInsensitiveOption};
+        if (auto regexMatch = userRegex.match(input); regexMatch.hasMatch())
+        {
+            Plasma::QueryMatch match{this};
+            match.setSubtext(tr("Direct message %1").arg(input));
+            match.setText(input);
+            match.setData(QVariant::fromValue(NhekoAction{.id{input}, .actionType{ActionType::DirectMessage}}));
+            match.setIcon(QIcon::fromTheme(QStringLiteral("user")));
             match.setType(Plasma::QueryMatch::ExactMatch);
             context.addMatch(match);
         }
@@ -113,10 +125,13 @@ void NhekoKRunner::run(const Plasma::RunnerContext &context, const Plasma::Query
         switch (data.actionType)
         {
         case ActionType::OpenRoom:
-            interface.call(QDBus::NoBlock, QStringLiteral("activateRoom"), data.roomid);
+            interface.call(QDBus::NoBlock, QStringLiteral("activateRoom"), data.id);
             break;
         case ActionType::JoinRoom:
-            interface.call(QDBus::NoBlock, QStringLiteral("joinRoom"), data.roomid);
+            interface.call(QDBus::NoBlock, QStringLiteral("joinRoom"), data.id);
+            break;
+        case ActionType::DirectMessage:
+            interface.call(QDBus::NoBlock, QStringLiteral("startDirectChat"), data.id);
             break;
         default:
             break;

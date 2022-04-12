@@ -15,11 +15,12 @@ enum ActionType
 {
     OpenRoom,
     JoinRoom,
+    DirectMessage,
 };
 
 struct NhekoAction
 {
-    QString roomid;
+    QString id;
     ActionType actionType;
 };
 Q_DECLARE_METATYPE(NhekoAction)
