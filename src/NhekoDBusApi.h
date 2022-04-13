@@ -2,31 +2,39 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#ifndef NHEKODBUSINTERFACE_H
-#define NHEKODBUSINTERFACE_H
+#ifndef NHEKODBUSAPI_H
+#define NHEKODBUSAPI_H
 
 #include <QDBusArgument>
 #include <QIcon>
 #include <QObject>
+#include <QVersionNumber>
 
 namespace nheko::dbus {
 
 //! Registers all necessary classes with D-Bus. Call this before using any nheko D-Bus classes.
-void init();
+void
+init();
 
-//! The current nheko D-Bus API version.
-const auto apiVersion{QStringLiteral("0.0.1")};
+//! The nheko D-Bus API version provided by this file. The API version number follows semantic
+//! versioning as defined by https://semver.org.
+const QVersionNumber apiVersion{0, 0, 1};
+
+//! Compare the installed Nheko API to the version that your client app targets to see if they
+//! are compatible.
+bool
+apiVersionIsCompatible(const QVersionNumber &clientAppVersion);
 
 class RoomInfoItem : public QObject
 {
     Q_OBJECT
 
 public:
-    RoomInfoItem(const QString &mxid  = QString{},
-                 const QString &alias = QString{},
-                 const QString &title = QString{},
-                 const QImage &image  = QImage{},
-                 QObject *parent      = nullptr);
+    RoomInfoItem(const QString &roomId = QString{},
+                 const QString &alias  = QString{},
+                 const QString &title  = QString{},
+                 const QImage &image   = QImage{},
+                 QObject *parent       = nullptr);
 
     RoomInfoItem(const RoomInfoItem &other);
 
@@ -37,7 +45,8 @@ public:
 
     RoomInfoItem &operator=(const RoomInfoItem &other);
     friend QDBusArgument &operator<<(QDBusArgument &arg, const nheko::dbus::RoomInfoItem &item);
-    friend const QDBusArgument &operator>>(const QDBusArgument &arg, nheko::dbus::RoomInfoItem &item);
+    friend const QDBusArgument &
+    operator>>(const QDBusArgument &arg, nheko::dbus::RoomInfoItem &item);
 
 private:
     QString roomId_;
@@ -58,6 +67,11 @@ operator<<(QDBusArgument &arg, const QImage &image);
 const QDBusArgument &
 operator>>(const QDBusArgument &arg, QImage &);
 
+QDBusArgument &
+operator<<(QDBusArgument &arg, const QVersionNumber &v);
+const QDBusArgument &
+operator>>(const QDBusArgument &arg, QVersionNumber &v);
+
 #define NHEKO_DBUS_SERVICE_NAME "io.github.Nheko-Reborn.nheko"
 
-#endif // NHEKODBUSINTERFACE_H
+#endif // NHEKODBUSAPI_H

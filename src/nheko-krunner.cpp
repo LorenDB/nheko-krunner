@@ -24,8 +24,8 @@ NhekoKRunner::NhekoKRunner(QObject *parent, const KPluginMetaData &metadata, con
     connect(this, &Plasma::AbstractRunner::prepare, this, [this] {
         if (QDBusConnection::sessionBus().isConnected())
             if (QDBusInterface interface{QStringLiteral(NHEKO_DBUS_SERVICE_NAME), QStringLiteral("/")}; interface.isValid())
-                if (QDBusReply<QString> apiVersion = interface.call(QStringLiteral("apiVersion"));
-                        apiVersion.isValid() && apiVersion.value() == nheko::dbus::apiVersion)
+                if (QDBusReply<QVersionNumber> apiVersion = interface.call(QStringLiteral("apiVersion"));
+                        apiVersion.isValid() && nheko::dbus::apiVersionIsCompatible(apiVersion.value()))
                     if (QDBusReply<QVector<nheko::dbus::RoomInfoItem>> reply = interface.call(QStringLiteral("getRooms")); reply.isValid())
                     {
                         m_rooms = reply.value();

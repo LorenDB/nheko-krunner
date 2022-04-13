@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#include "NhekoDBusInterface.h"
+#include "NhekoDBusApi.h"
 
 #include <QDBusMetaType>
 
@@ -14,15 +14,30 @@ init()
     qDBusRegisterMetaType<RoomInfoItem>();
     qDBusRegisterMetaType<QVector<RoomInfoItem>>();
     qDBusRegisterMetaType<QImage>();
+    qDBusRegisterMetaType<QVersionNumber>();
 }
 
-RoomInfoItem::RoomInfoItem(const QString &mxid,
+bool
+apiVersionIsCompatible(const QVersionNumber &clientAppVersion)
+{
+    if (clientAppVersion.majorVersion() != nheko::dbus::apiVersion.majorVersion())
+        return false;
+    if (clientAppVersion.minorVersion() > nheko::dbus::apiVersion.minorVersion())
+        return false;
+    if (clientAppVersion.minorVersion() == nheko::dbus::apiVersion.minorVersion() &&
+        clientAppVersion.microVersion() < nheko::dbus::apiVersion.microVersion())
+        return false;
+
+    return true;
+}
+
+RoomInfoItem::RoomInfoItem(const QString &roomId,
                            const QString &alias,
                            const QString &title,
                            const QImage &image,
                            QObject *parent)
   : QObject{parent}
-  , roomId_{mxid}
+  , roomId_{roomId}
   , alias_{alias}
   , roomName_{title}
   , image_{image}
@@ -61,7 +76,7 @@ operator>>(const QDBusArgument &arg, RoomInfoItem &item)
     arg.beginStructure();
     arg >> item.roomId_ >> item.alias_ >> item.roomName_ >> item.image_;
     if (item.image_.isNull())
-        item.image_ = QIcon::fromTheme(QStringLiteral("group")).pixmap(32, 32).toImage();
+        item.image_ = QImage{QStringLiteral(":/icons/ui/speech-bubbles.svg")};
 
     arg.endStructure();
     return arg;
@@ -107,8 +122,7 @@ operator<<(QDBusArgument &arg, const QImage &image)
 }
 
 // This function, however, was merely reverse-engineered from the above function
-// and is not from the Clementine project (except for the byte-order block, which
-// was more or less copied from the above function).
+// and is not from the Clementine project.
 const QDBusArgument &
 operator>>(const QDBusArgument &arg, QImage &image)
 {
@@ -120,8 +134,8 @@ operator>>(const QDBusArgument &arg, QImage &image)
     arg >> width >> height >> garbage >> garbage >> garbage >> garbage >> bits;
     arg.endStructure();
 
-    // this first constructor should work, but it doesn't for some reason; thus the #if-#else-#endif
-//    image = QImage(reinterpret_cast<uchar *>(bits.data()), width, height, QImage::Format_RGBA8888);
+//     image = QImage(reinterpret_cast<uchar *>(bits.data()), width, height, QImage::Format_RGBA8888);
+    // TODO: The above line should work; make it do so.
     image = QImage(reinterpret_cast<uchar *>(bits.data()), width, height, QImage::Format_ARGB32);
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
     image = image.rgbSwapped();
@@ -143,5 +157,25 @@ operator>>(const QDBusArgument &arg, QImage &image)
     }
 #endif
 
+    return arg;
+}
+
+QDBusArgument &
+operator<<(QDBusArgument &arg, const QVersionNumber &v)
+{
+    arg.beginStructure();
+    arg << v.toString();
+    arg.endStructure();
+    return arg;
+}
+
+const QDBusArgument &
+operator>>(const QDBusArgument &arg, QVersionNumber &v)
+{
+    arg.beginStructure();
+    QString temp;
+    arg >> temp;
+    v = QVersionNumber::fromString(temp);
+    arg.endStructure();
     return arg;
 }

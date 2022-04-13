@@ -4,7 +4,7 @@ add_library(nheko-krunner MODULE)
 
 target_sources(nheko-krunner PRIVATE
     nheko-krunner.cpp
-	NhekoDBusInterface.cpp
+    NhekoDBusApi.cpp
 )
 
 kcoreaddons_desktop_to_json(nheko-krunner plasma-runner-nheko-krunner.desktop)

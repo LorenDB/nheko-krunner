@@ -9,7 +9,7 @@
 
 #include <KRunner/AbstractRunner>
 
-#include "NhekoDBusInterface.h"
+#include "NhekoDBusApi.h"
 
 enum ActionType
 {
