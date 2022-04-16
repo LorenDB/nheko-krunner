@@ -23,15 +23,15 @@ NhekoKRunner::NhekoKRunner(QObject *parent, const KPluginMetaData &metadata, con
 
     connect(this, &Plasma::AbstractRunner::prepare, this, [this] {
         if (QDBusConnection::sessionBus().isConnected())
-            if (QDBusInterface interface{QStringLiteral(NHEKO_DBUS_SERVICE_NAME), QStringLiteral("/")}; interface.isValid())
-                if (QDBusReply<QVersionNumber> apiVersion = interface.call(QStringLiteral("apiVersion"));
-                        apiVersion.isValid() && nheko::dbus::apiVersionIsCompatible(apiVersion.value()))
-                    if (QDBusReply<QVector<nheko::dbus::RoomInfoItem>> reply = interface.call(QStringLiteral("getRooms")); reply.isValid())
-                    {
-                        m_rooms = reply.value();
-                        m_dbusConnected = true;
-                        return;
-                    }
+            if (nheko::dbus::apiVersionIsCompatible(QVersionNumber::fromString(nheko::dbus::apiVersion())))
+            {
+                m_rooms = nheko::dbus::getRooms();
+                if (!m_rooms.isEmpty())
+                {
+                    m_dbusConnected = true;
+                    return;
+                }
+            }
 
         m_dbusConnected = false;
     });
@@ -125,18 +125,17 @@ void NhekoKRunner::run(const Plasma::RunnerContext &context, const Plasma::Query
         switch (data.actionType)
         {
         case ActionType::OpenRoom:
-            interface.call(QDBus::NoBlock, QStringLiteral("activateRoom"), data.id);
+            nheko::dbus::activateRoom(data.id);
             break;
         case ActionType::JoinRoom:
-            interface.call(QDBus::NoBlock, QStringLiteral("joinRoom"), data.id);
+            nheko::dbus::joinRoom(data.id);
             break;
         case ActionType::DirectMessage:
-            interface.call(QDBus::NoBlock, QStringLiteral("startDirectChat"), data.id);
+            nheko::dbus::startDirectChat(data.id);
             break;
         default:
             break;
         }
-
     }
 }
 
