@@ -36,10 +36,14 @@ public:
 public: // Plasma::AbstractRunner API
     void match(Plasma::RunnerContext &context) override;
     void run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match) override;
+    virtual void reloadConfiguration() override;
 
 private:
     QVector<nheko::dbus::RoomInfoItem> m_rooms;
     bool m_dbusConnected{true};
+
+    // config
+    bool m_showNotificationCounts{true};
 };
 
 #endif

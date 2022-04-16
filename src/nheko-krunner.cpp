@@ -8,6 +8,7 @@
 
 // KF
 #include <KLocalizedString>
+#include <KConfigGroup>
 
 #include <QDBusInterface>
 #include <QDBusReply>
@@ -70,8 +71,12 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
 
         if (roomMatches)
         {
+            auto text{room.roomName()};
+            if (room.unreadNotifications() > 0)
+                text.append(QStringLiteral(" (%1)").arg(room.unreadNotifications()));
+
             Plasma::QueryMatch match{this};
-            match.setText(room.roomName());
+            match.setText(text);
             match.setSubtext(room.alias());
             match.setData(QVariant::fromValue(NhekoAction{.id{room.roomId()}, .actionType{ActionType::OpenRoom}}));
             match.setIcon(QIcon{QPixmap::fromImage(room.image())});
@@ -137,6 +142,13 @@ void NhekoKRunner::run(const Plasma::RunnerContext &context, const Plasma::Query
             break;
         }
     }
+}
+
+void NhekoKRunner::reloadConfiguration()
+{
+    KConfigGroup conf = config();
+
+    m_showNotificationCounts = conf.readEntry(QStringLiteral("showNotificationCounts"), true);
 }
 
 K_EXPORT_PLASMA_RUNNER_WITH_JSON(NhekoKRunner, "plasma-runner-nheko-krunner.json")
