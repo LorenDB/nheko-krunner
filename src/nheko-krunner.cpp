@@ -71,8 +71,8 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
         if (roomMatches)
         {
             Plasma::QueryMatch match{this};
-            match.setSubtext(room.roomName());
-            match.setText(room.alias());
+            match.setText(room.roomName());
+            match.setSubtext(room.alias());
             match.setData(QVariant::fromValue(NhekoAction{.id{room.roomId()}, .actionType{ActionType::OpenRoom}}));
             match.setIcon(QIcon{QPixmap::fromImage(room.image())});
             match.setType(matchingContent.compare(input, Qt::CaseInsensitive) == 0 ? Plasma::QueryMatch::ExactMatch : Plasma::QueryMatch::PossibleMatch);
