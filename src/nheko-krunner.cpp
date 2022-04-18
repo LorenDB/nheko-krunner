@@ -26,14 +26,13 @@ NhekoKRunner::NhekoKRunner(QObject *parent, const KPluginMetaData &metadata, con
         if (QDBusConnection::sessionBus().isConnected())
             if (nheko::dbus::apiVersionIsCompatible(QVersionNumber::fromString(nheko::dbus::apiVersion())))
             {
-                m_rooms = nheko::dbus::getRooms();
+                m_rooms = nheko::dbus::rooms();
                 if (!m_rooms.isEmpty())
                 {
                     m_dbusConnected = true;
                     return;
                 }
             }
-
         m_dbusConnected = false;
     });
 }
@@ -136,7 +135,7 @@ void NhekoKRunner::run(const Plasma::RunnerContext &context, const Plasma::Query
             nheko::dbus::joinRoom(data.id);
             break;
         case ActionType::DirectMessage:
-            nheko::dbus::startDirectChat(data.id);
+            nheko::dbus::directChat(data.id);
             break;
         default:
             break;
