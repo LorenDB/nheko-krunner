@@ -30,6 +30,7 @@ NhekoKRunner::NhekoKRunner(QObject *parent, const KPluginMetaData &metadata, con
 
     connect(this, &Plasma::AbstractRunner::prepare, this, [this] {
         if (QDBusConnection::sessionBus().isConnected())
+        {
             if (nheko::dbus::apiVersionIsCompatible(QVersionNumber::fromString(nheko::dbus::apiVersion())))
             {
                 m_rooms = nheko::dbus::rooms();
@@ -39,7 +40,11 @@ NhekoKRunner::NhekoKRunner(QObject *parent, const KPluginMetaData &metadata, con
                     return;
                 }
             }
+            else
+                logger() << tr("Incompatible nheko API!");
+        }
         m_dbusConnected = false;
+        logger() << tr("Couldn't connect to nheko!");
     });
 }
 
