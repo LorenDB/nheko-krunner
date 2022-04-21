@@ -8,7 +8,7 @@ target_sources(nheko-krunner PRIVATE
 )
 
 kcoreaddons_desktop_to_json(nheko-krunner plasma-runner-nheko-krunner.desktop)
-target_link_libraries(nheko-krunner KF5::Runner KF5::I18n Qt5::DBus)
+target_link_libraries(nheko-krunner KF5::Runner Qt5::DBus)
 
 install(TARGETS nheko-krunner DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf5/krunner)
 
