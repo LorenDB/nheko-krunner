@@ -10,8 +10,14 @@
 #include <KLocalizedString>
 #include <KConfigGroup>
 
+#include <QDebug>
 #include <QDBusInterface>
 #include <QDBusReply>
+
+auto logger()
+{
+    return qInfo().noquote() << "[nheko-krunner]";
+}
 
 NhekoKRunner::NhekoKRunner(QObject *parent, const KPluginMetaData &metadata, const QVariantList &args)
     : Plasma::AbstractRunner(parent, metadata, args)
@@ -102,6 +108,8 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
             match.setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
             match.setType(Plasma::QueryMatch::ExactMatch);
             context.addMatch(match);
+
+            logger() << tr("Input is a room alias.");
         }
         
         QRegularExpression userRegex{QStringLiteral("@.+?:.{3,}"), QRegularExpression::CaseInsensitiveOption};
@@ -114,8 +122,12 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
             match.setIcon(QIcon::fromTheme(QStringLiteral("user")));
             match.setType(Plasma::QueryMatch::ExactMatch);
             context.addMatch(match);
+
+            logger() << tr("Input is a user ID.");
         }
     }
+    else
+        logger() << tr("Found %n matching room(s).", nullptr, context.matches().length());
 }
 
 void NhekoKRunner::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match)
