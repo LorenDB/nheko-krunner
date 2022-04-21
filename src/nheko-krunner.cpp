@@ -99,6 +99,8 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
     if (!roomFound)
     {
         QRegularExpression roomRegex{QStringLiteral("#.+?:.{3,}"), QRegularExpression::CaseInsensitiveOption};
+        QRegularExpression userRegex{QStringLiteral("@.+?:.{3,}"), QRegularExpression::CaseInsensitiveOption};
+        
         if (auto regexMatch = roomRegex.match(input); regexMatch.hasMatch())
         {
             Plasma::QueryMatch match{this};
@@ -111,9 +113,7 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
 
             logger() << tr("Input is a room alias.");
         }
-        
-        QRegularExpression userRegex{QStringLiteral("@.+?:.{3,}"), QRegularExpression::CaseInsensitiveOption};
-        if (auto regexMatch = userRegex.match(input); regexMatch.hasMatch())
+        else if (auto regexMatch = userRegex.match(input); regexMatch.hasMatch())
         {
             Plasma::QueryMatch match{this};
             match.setSubtext(tr("Direct message %1").arg(input));
