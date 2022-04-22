@@ -33,16 +33,19 @@ NhekoKRunner::NhekoKRunner(QObject *parent, const KPluginMetaData &metadata, con
         {
             if (nheko::dbus::apiVersionIsCompatible(QVersionNumber::fromString(nheko::dbus::apiVersion())))
             {
+                m_dbusConnected = true;
                 m_rooms = nheko::dbus::rooms();
-                if (!m_rooms.isEmpty())
-                {
-                    m_dbusConnected = true;
-                    return;
-                }
+
+                if (m_rooms.isEmpty())
+                    logger() << tr("Connected to nheko, but no rooms were provided.");
+                else
+                    logger() << tr("Retrieved %n room(s) from nheko.", nullptr, m_rooms.length());
+                return;
             }
             else
                 logger() << tr("Incompatible nheko API!");
         }
+
         m_dbusConnected = false;
         logger() << tr("Couldn't connect to nheko!");
     });
@@ -54,7 +57,7 @@ NhekoKRunner::~NhekoKRunner()
 
 void NhekoKRunner::match(Plasma::RunnerContext &context)
 {
-    if (!m_dbusConnected)
+    if (!m_dbusConnected || m_rooms.isEmpty())
         return;
 
     bool roomFound{false};
