@@ -14,7 +14,7 @@
 #include <QDBusInterface>
 #include <QDBusReply>
 
-auto logger()
+inline auto logger()
 {
     return qInfo().noquote() << "[nheko-krunner]";
 }
