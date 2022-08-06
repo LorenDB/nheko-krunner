@@ -109,27 +109,27 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
         QRegularExpression roomRegex{QStringLiteral("#.+?:.{3,}"), QRegularExpression::CaseInsensitiveOption};
         QRegularExpression userRegex{QStringLiteral("@.+?:.{3,}"), QRegularExpression::CaseInsensitiveOption};
         
-        if (auto regexMatch = roomRegex.match(input); regexMatch.hasMatch())
+        if (roomRegex.match(input).hasMatch())
         {
-            Plasma::QueryMatch match{this};
-            match.setSubtext(tr("Join %1").arg(input));
-            match.setText(input);
-            match.setData(QVariant::fromValue(NhekoAction{.id{input}, .actionType{ActionType::JoinRoom}}));
-            match.setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
-            match.setType(Plasma::QueryMatch::ExactMatch);
-            context.addMatch(match);
+            Plasma::QueryMatch m{this};
+            m.setSubtext(tr("Join %1").arg(input));
+            m.setText(input);
+            m.setData(QVariant::fromValue(NhekoAction{.id{input}, .actionType{ActionType::JoinRoom}}));
+            m.setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
+            m.setType(Plasma::QueryMatch::ExactMatch);
+            context.addMatch(m);
 
             logger() << tr("Input is a room alias.");
         }
-        else if (auto regexMatch = userRegex.match(input); regexMatch.hasMatch())
+        else if (userRegex.match(input).hasMatch())
         {
-            Plasma::QueryMatch match{this};
-            match.setSubtext(tr("Direct message %1").arg(input));
-            match.setText(input);
-            match.setData(QVariant::fromValue(NhekoAction{.id{input}, .actionType{ActionType::DirectMessage}}));
-            match.setIcon(QIcon::fromTheme(QStringLiteral("user")));
-            match.setType(Plasma::QueryMatch::ExactMatch);
-            context.addMatch(match);
+            Plasma::QueryMatch m{this};
+            m.setSubtext(tr("Direct message %1").arg(input));
+            m.setText(input);
+            m.setData(QVariant::fromValue(NhekoAction{.id{input}, .actionType{ActionType::DirectMessage}}));
+            m.setIcon(QIcon::fromTheme(QStringLiteral("user")));
+            m.setType(Plasma::QueryMatch::ExactMatch);
+            context.addMatch(m);
 
             logger() << tr("Input is a user ID.");
         }
