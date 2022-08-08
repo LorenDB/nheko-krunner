@@ -91,7 +91,7 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
             Plasma::QueryMatch match{this};
             match.setText(text);
             match.setSubtext(room.alias());
-            match.setData(QVariant::fromValue(NhekoAction{.id{room.roomId()}, .actionType{ActionType::OpenRoom}}));
+            match.setData(QVariant::fromValue(NhekoAction{.id = room.roomId(), .actionType = ActionType::OpenRoom}));
             match.setIcon(QIcon{QPixmap::fromImage(room.image())});
             match.setType(matchingContent.compare(input, Qt::CaseInsensitive) == 0 ? Plasma::QueryMatch::ExactMatch : Plasma::QueryMatch::PossibleMatch);
             context.addMatch(match);
@@ -114,7 +114,7 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
             Plasma::QueryMatch m{this};
             m.setSubtext(tr("Join %1").arg(input));
             m.setText(input);
-            m.setData(QVariant::fromValue(NhekoAction{.id{input}, .actionType{ActionType::JoinRoom}}));
+            m.setData(QVariant::fromValue(NhekoAction{.id = input, .actionType = ActionType::JoinRoom}));
             m.setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
             m.setType(Plasma::QueryMatch::ExactMatch);
             context.addMatch(m);
@@ -126,7 +126,7 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
             Plasma::QueryMatch m{this};
             m.setSubtext(tr("Direct message %1").arg(input));
             m.setText(input);
-            m.setData(QVariant::fromValue(NhekoAction{.id{input}, .actionType{ActionType::DirectMessage}}));
+            m.setData(QVariant::fromValue(NhekoAction{.id = input, .actionType = ActionType::DirectMessage}));
             m.setIcon(QIcon::fromTheme(QStringLiteral("user")));
             m.setType(Plasma::QueryMatch::ExactMatch);
             context.addMatch(m);
