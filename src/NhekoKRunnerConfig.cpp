@@ -3,6 +3,9 @@
 #include <KAboutData>
 #include <KPluginFactory>
 
+#include <QGridLayout>
+#include <QLabel>
+
 K_PLUGIN_FACTORY(NhekoKRunnerConfigFactory, registerPlugin<NhekoKRunnerConfig>();)
 
 NhekoKRunnerConfig::NhekoKRunnerConfig(QWidget *parent, const QVariantList &args)
@@ -15,6 +18,12 @@ NhekoKRunnerConfig::NhekoKRunnerConfig(QWidget *parent, const QVariantList &args
                                 KAboutLicense::GPL_V3};
     about->addAuthor(QStringLiteral("Loren Burkholder"), tr("Author"), QStringLiteral("computersemiexpert@outlook.com"));
     setAboutData(about);
+
+    setButtons(Apply);
+
+    auto layout = new QGridLayout{this};
+
+    layout->addWidget(new QLabel{QStringLiteral("Nothing to see yet.")});
 }
 
 #include "NhekoKRunnerConfig.moc"
