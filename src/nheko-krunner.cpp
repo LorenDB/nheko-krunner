@@ -169,7 +169,6 @@ void NhekoKRunner::reloadConfiguration()
 
     m_showNotificationCounts = conf.readEntry(QStringLiteral("showNotificationCounts"), true);
     conf.writeEntry(QStringLiteral("showNotificationCounts"), m_showNotificationCounts);
-    conf.sync();
 }
 
 K_PLUGIN_CLASS_WITH_JSON(NhekoKRunner, "plasma-runner-nheko-krunner.json")

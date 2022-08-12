@@ -6,7 +6,6 @@
 #include <KSharedConfig>
 
 #include <QGridLayout>
-#include <QLabel> // deleteme
 
 NhekoKRunnerConfig::NhekoKRunnerConfig(QWidget *parent, const QVariantList &args)
     : KCModule{parent, args}
@@ -49,7 +48,6 @@ void NhekoKRunnerConfig::save()
                       .group(QStringLiteral("nheko-krunner"));
 
     config.writeEntry(QStringLiteral("showNotificationCounts"), m_showNotificationCounts->isChecked());
-    config.sync();
 
     Q_EMIT changed(false);
 }
