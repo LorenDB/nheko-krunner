@@ -28,35 +28,35 @@ NhekoKRunnerConfig::NhekoKRunnerConfig(QWidget *parent, const QVariantList &args
 
 void NhekoKRunnerConfig::load()
 {
-    KCModule::load();
-
     auto config = KSharedConfig::openConfig(QStringLiteral("krunnerrc"))
             ->group(QStringLiteral("Runners"))
                       .group(QStringLiteral("nheko-krunner"));
 
     m_showNotificationCounts->setChecked(config.readEntry(QStringLiteral("showNotificationCounts"), true));
 
+    KCModule::load();
+
     Q_EMIT changed(false);
 }
 
 void NhekoKRunnerConfig::save()
 {
-    KCModule::save();
-
     auto config = KSharedConfig::openConfig(QStringLiteral("krunnerrc"))
             ->group(QStringLiteral("Runners"))
                       .group(QStringLiteral("nheko-krunner"));
 
     config.writeEntry(QStringLiteral("showNotificationCounts"), m_showNotificationCounts->isChecked());
 
+    KCModule::save();
+
     Q_EMIT changed(false);
 }
 
 void NhekoKRunnerConfig::defaults()
 {
-    KCModule::defaults();
-
     m_showNotificationCounts->setChecked(true);
+
+    KCModule::defaults();
 
     markAsChanged();
 }
