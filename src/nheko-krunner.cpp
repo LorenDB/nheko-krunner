@@ -87,12 +87,13 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
             auto text{room.roomName()};
             if ((room.unreadNotifications() > 0) && m_showNotificationCounts)
                 text.append(QStringLiteral(" (%1)").arg(room.unreadNotifications()));
+            text.append(QStringLiteral(" (%1)").arg(m_showNotificationCounts));
 
             Plasma::QueryMatch match{this};
             match.setText(text);
             match.setSubtext(room.alias());
-            match.setData(QVariant::fromValue(NhekoAction{.id = room.roomId(), .actionType = ActionType::OpenRoom}));
-            match.setIcon(QIcon{QPixmap::fromImage(room.image())});
+            match.setData(QVariant::fromValue(NhekoAction{.id{room.roomId()}, .actionType{ActionType::OpenRoom}}));
+            match.setIcon(QIcon{QPixmap::fromImage(nheko::dbus::image(room.avatarUrl()))});
             match.setType(matchingContent.compare(input, Qt::CaseInsensitive) == 0 ? Plasma::QueryMatch::ExactMatch : Plasma::QueryMatch::PossibleMatch);
             context.addMatch(match);
 
