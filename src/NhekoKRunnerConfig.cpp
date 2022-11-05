@@ -46,6 +46,7 @@ void NhekoKRunnerConfig::save()
                       .group(QStringLiteral("nheko-krunner"));
 
     config.writeEntry(QStringLiteral("showNotificationCounts"), m_showNotificationCounts->isChecked());
+    config.sync();
 
     KCModule::save();
 
