@@ -168,7 +168,6 @@ void NhekoKRunner::reloadConfiguration()
     KConfigGroup conf = config();
 
     m_showNotificationCounts = conf.readEntry(QStringLiteral("showNotificationCounts"), true);
-    conf.writeEntry(QStringLiteral("showNotificationCounts"), m_showNotificationCounts);
     conf.sync();
 }
 
