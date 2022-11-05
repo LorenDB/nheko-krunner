@@ -87,7 +87,6 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
             auto text{room.roomName()};
             if ((room.unreadNotifications() > 0) && m_showNotificationCounts)
                 text.append(QStringLiteral(" (%1)").arg(room.unreadNotifications()));
-            text.append(QStringLiteral(" (%1)").arg(m_showNotificationCounts));
 
             Plasma::QueryMatch match{this};
             match.setText(text);
