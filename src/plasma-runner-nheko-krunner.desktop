@@ -8,7 +8,8 @@ Type=Service
 
 X-KDE-PluginInfo-Author=Loren Burkholder
 X-KDE-PluginInfo-Email=computersemiexpert@outlook.com
-X-KDE-PluginInfo-Name=nheko
+X-KDE-PluginInfo-Name=nheko-krunner
 X-KDE-PluginInfo-Version=0.1.0
 X-KDE-PluginInfo-License=LGPL 2.1+
 X-KDE-PluginInfo-EnabledByDefault=true
+X-KDE-ConfigModule=kf5/krunner/kcms/kcm_nheko-krunner

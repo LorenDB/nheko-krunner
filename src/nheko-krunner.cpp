@@ -85,7 +85,7 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
         if (roomMatches)
         {
             auto text{room.roomName()};
-            if (room.unreadNotifications() > 0)
+            if ((room.unreadNotifications() > 0) && m_showNotificationCounts)
                 text.append(QStringLiteral(" (%1)").arg(room.unreadNotifications()));
             text.append(QStringLiteral(" (%1)").arg(m_showNotificationCounts));
 
@@ -115,7 +115,7 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
             Plasma::QueryMatch m{this};
             m.setSubtext(tr("Join %1").arg(input));
             m.setText(input);
-            m.setData(QVariant::fromValue(NhekoAction{.id{input}, .actionType{ActionType::JoinRoom}}));
+            m.setData(QVariant::fromValue(NhekoAction{.id = input, .actionType = ActionType::JoinRoom}));
             m.setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
             m.setType(Plasma::QueryMatch::ExactMatch);
             context.addMatch(m);
@@ -127,7 +127,7 @@ void NhekoKRunner::match(Plasma::RunnerContext &context)
             Plasma::QueryMatch m{this};
             m.setSubtext(tr("Direct message %1").arg(input));
             m.setText(input);
-            m.setData(QVariant::fromValue(NhekoAction{.id{input}, .actionType{ActionType::DirectMessage}}));
+            m.setData(QVariant::fromValue(NhekoAction{.id = input, .actionType = ActionType::DirectMessage}));
             m.setIcon(QIcon::fromTheme(QStringLiteral("user")));
             m.setType(Plasma::QueryMatch::ExactMatch);
             context.addMatch(m);
@@ -169,9 +169,10 @@ void NhekoKRunner::reloadConfiguration()
     KConfigGroup conf = config();
 
     m_showNotificationCounts = conf.readEntry(QStringLiteral("showNotificationCounts"), true);
+    conf.sync();
 }
 
-K_EXPORT_PLASMA_RUNNER_WITH_JSON(NhekoKRunner, "plasma-runner-nheko-krunner.json")
+K_PLUGIN_CLASS_WITH_JSON(NhekoKRunner, "plasma-runner-nheko-krunner.json")
 
 // needed for the QObject subclass declared as part of K_EXPORT_PLASMA_RUNNER_WITH_JSON
 #include "nheko-krunner.moc"
