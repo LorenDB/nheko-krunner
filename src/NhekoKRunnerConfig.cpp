@@ -12,7 +12,7 @@ NhekoKRunnerConfig::NhekoKRunnerConfig(QWidget *parent, const QVariantList &args
 {
     auto about = new KAboutData{QStringLiteral("nheko-krunner"),
                                 QStringLiteral("nheko"),
-                                QStringLiteral("0.1.0"),
+                                QStringLiteral("0.2.0"),
                                 tr("List rooms and perform other actions with nheko."),
                                 KAboutLicense::LGPL_V2_1};
     about->addAuthor(QStringLiteral("Loren Burkholder"), tr("Author"), QStringLiteral("computersemiexpert@outlook.com"));

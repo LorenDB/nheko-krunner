@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(nheko-krunner VERSION 0.1.0 LANGUAGES CXX)
+project(nheko-krunner VERSION 0.2.0 LANGUAGES CXX)
 
 set(KF5_MIN_VERSION "5.90.0")
 
